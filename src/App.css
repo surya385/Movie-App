@@ -24,3 +24,14 @@
   padding: 20px;
   text-align: center;
 }
+.modal{
+    position: relative;
+}
+.cancel_icon{
+    position:absolute;
+    top:0;
+    right:0;
+    background-color: rgba(255, 255, 255, 0.473);
+    border: 0;
+    border-radius: 8;
+}

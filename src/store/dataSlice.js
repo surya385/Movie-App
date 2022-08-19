@@ -17,9 +17,22 @@ export const dataSlice = createSlice({
   initialState,
   reducers: {
     addFavourites: (state, action) => {
-      state.favourites.push(action.payload);
+      const tempState = state.data.results.map((movie) => {
+        if (movie.id === action.payload.id) {
+          return { ...movie, isFavourite: true };
+        } else return { ...movie };
+      });
+      state.data.results = tempState;
+      const favouriteMovie = { ...action.payload, isFavourite: true };
+      state.favourites.push(favouriteMovie);
     },
     removeFavourites: (state, action) => {
+      const tempState = state.data.results.map((movie) => {
+        if (movie.id === action.payload) {
+          return { ...movie, isFavourite: false };
+        } else return { ...movie };
+      });
+      state.data.results = tempState;
       state.favourites = state.favourites.filter(
         (favourite) => favourite.id !== action.payload
       );
@@ -39,6 +52,12 @@ export const dataSlice = createSlice({
       })
       .addCase(getMovieData.fulfilled, (state, action) => {
         state.isLoading = false;
+        action.payload.results = action.payload.results.map((item) => {
+          return {
+            ...item,
+            isFavourite: false,
+          };
+        });
         state.data = action.payload;
       })
       .addCase(getMovieData.rejected, (state, action) => {

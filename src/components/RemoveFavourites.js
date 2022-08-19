@@ -1,28 +1,83 @@
-import React from "react";
+import Axios from "axios";
+import { Urls } from "../config/config";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const RemoveFavourites = () => {
-  return (
-    <>
-      <span className="mr-2">Remove from favourites</span>
-      <svg
-        width="1em"
-        height="1em"
-        viewBox="0 0 16 16"
-        class="bi bi-x-square"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"
-        />
-        <path
-          fill-rule="evenodd"
-          d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
-        />
-      </svg>
-    </>
-  );
+const initialState = {
+  data: null,
+  favourites: [],
+  isLoading: false,
+  page: 1,
+  favouritesPage: 1,
+  error: null,
+  sortBy: "rating",
 };
 
-export default RemoveFavourites;
+export const dataSlice = createSlice({
+  name: "movieData",
+  initialState,
+  reducers: {
+    addFavourites: (state, action) => {
+      const tempState = state.data.results.map((movie) => {
+        if (movie.id === action.payload.id) {
+          return { ...movie, isFavourite: true };
+        } else return { ...movie };
+      });
+      state.data.results = tempState;
+      const favouriteMovie = { ...action.payload, isFavourite: true };
+      state.favourites.push(favouriteMovie);
+    },
+    removeFavourites: (state, action) => {
+      const tempState = state.data.results.map((movie) => {
+        if (movie.id === action.payload) {
+          return { ...movie, isFavourite: false };
+        } else return { ...movie };
+      });
+      state.data.results = tempState;
+      state.favourites = state.favourites.filter(
+        (favourite) => favourite.id !== action.payload
+      );
+    },
+    setPage: (state, action) => {
+      if (action.payload.tab === "Favourites") {
+        state.favouritesPage = action.payload.page;
+      } else {
+        state.page = action.payload.page;
+      }
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getMovieData.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getMovieData.fulfilled, (state, action) => {
+        state.isLoading = false;
+        action.payload.results = action.payload.results.map((item) => {
+          return {
+            ...item,
+            isFavourite: false,
+          };
+        });
+        state.data = action.payload;
+      })
+      .addCase(getMovieData.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+  },
+});
+export const getMovieData = createAsyncThunk(
+  "/api/movie",
+  async (params, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const { data } = await Axios.get(
+      `${Urls.API_URL}&page=${state.movie.page}`
+    );
+    return data;
+  }
+);
+
+export const { addFavourites, removeFavourites, setPage, sort } =
+  dataSlice.actions;
+
+export default dataSlice.reducer;

@@ -8,7 +8,7 @@ import { Urls } from "../config/config";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CloseIcon from "@mui/icons-material/Close";
 
-export default function MovieCard({ movieData, FavComponent }) {
+export default function MovieCard({ movieData, FavComponent ,movieModelOpen}) {
   const dispatch = useDispatch();
   const onClickHandler = () => {
     if (movieData.isFavourite) {
@@ -19,12 +19,14 @@ export default function MovieCard({ movieData, FavComponent }) {
   };
   return (
     <Card md={{ width: 319,height:416 }}>
-      <CardActionArea>
+
         <div className="image-container d-flex justify-content-start m-3">
+        <CardActionArea onClick={()=>movieModelOpen(movieData)}>
           <CardMedia
             component="img"
             image={`${Urls.API_IMG}${movieData.poster_path}`}
           />
+            </CardActionArea>
           <div
             onClick={onClickHandler}
             className="overlay d-flex align-items-center justify-content-center"
@@ -41,7 +43,7 @@ export default function MovieCard({ movieData, FavComponent }) {
             )}
           </div>
         </div>
-      </CardActionArea>
+
     </Card>
   );
 }

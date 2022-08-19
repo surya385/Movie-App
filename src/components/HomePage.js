@@ -5,7 +5,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { useState } from "react";
-import { AppBar, Button, TabScrollButton } from "@mui/material";
+import { AppBar, Button, Pagination, Stack, TabScrollButton } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
@@ -55,6 +55,7 @@ const HomePage = () => {
   };
   const favouritesData=movieData.favourites;
   const newReleasesData= movieData.data?.results;
+  console.log(movieData);
   return (
     <>
       <AppBar style={{ background: "#2E3B55" }}>
@@ -124,6 +125,7 @@ const HomePage = () => {
         {tab === "Favourites" && (
           <DynTab data={favouritesData} FavComponent={RemoveFavourites} />
         )}
+
       </main>
     </>
   );
