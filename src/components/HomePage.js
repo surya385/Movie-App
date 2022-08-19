@@ -9,23 +9,29 @@ import { useState } from "react";
 import { AppBar, Button, Pagination, Stack } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import store from "../store/store";
-import { getMovieData, setPage, sortDataUsingDate } from "../store/dataSlice";
+import {
+  getMovieData,
+  setPage,
+  sortDataUsingDate,
+  sortDataUsingRating,
+} from "../store/dataSlice";
 import DynTab from "./DynTab";
-import AddFavourite from "./AddFavourites";
-import RemoveFavourites from "./RemoveFavourites";
 const HomePage = () => {
   const movieData = useSelector((state) => state.movie);
   const dispatch = useDispatch();
   const [tab, setTab] = useState("NewRelease");
   const [dateFilter, setDateFilter] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState(false);
 
   useEffect(() => {
     dispatch(getMovieData());
   }, [movieData.page]);
   useEffect(() => {
-    dispatch(sortDataUsingDate({dateFilter,tab}));
+    dispatch(sortDataUsingDate({ dateFilter, tab }));
   }, [dateFilter]);
+  useEffect(() => {
+    dispatch(sortDataUsingRating({ ratingFilter, tab }));
+  }, [ratingFilter]);
 
   const handleChange = (event, newValue) => {
     setTab(newValue);
@@ -82,11 +88,11 @@ const HomePage = () => {
             </div>
             <div className="rating">
               <Button
+                onClick={() => setRatingFilter((prev) => !prev)}
                 variant="contained"
                 color="secondary"
                 endIcon={
-                  <ArrowUpwardIcon />
-                  //   <ArrowDownwardIcon />
+                  ratingFilter ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />
                 }
               >
                 Rating
@@ -97,10 +103,10 @@ const HomePage = () => {
       </AppBar>
       <main className="content">
         {tab === "NewRelease" && (
-          <DynTab data={movieData.data?.results} FavComponent={AddFavourite} />
+          <DynTab data={movieData.data?.results}/>
         )}
         {tab === "Favourites" && (
-          <DynTab data={movieData.favourites} FavComponent={RemoveFavourites} />
+          <DynTab data={movieData.favourites}/>
         )}
         {movieData.data?.total_pages && tab !== "Favourites" && (
           <div className="pagination">

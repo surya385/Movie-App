@@ -76,6 +76,38 @@ export const dataSlice = createSlice({
           break;
       }
     },
+    sortDataUsingRating(state, action) {
+      console.log("from slice", action);
+      // eslint-disable-next-line default-case
+      switch (action.payload.tab) {
+        case "NewRelease":
+          if (action.payload.ratingFilter) {
+            state.data?.results.sort(
+              (firstMovie, secondMovie) =>
+                secondMovie.vote_average - firstMovie.vote_average
+            );
+          } else {
+            state.data?.results.sort(
+              (firstMovie, secondMovie) =>
+                firstMovie.vote_average - secondMovie.vote_average
+            );
+          }
+          break;
+        case "Favourites":
+          if (action.payload.ratingFilter) {
+            state.favourites.sort(
+              (firstMovie, secondMovie) =>
+                secondMovie.vote_average - firstMovie.vote_average
+            );
+          } else {
+            state.favourites.sort(
+              (firstMovie, secondMovie) =>
+                firstMovie.vote_average - secondMovie.vote_average
+            );
+          }
+          break;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -109,7 +141,12 @@ export const getMovieData = createAsyncThunk(
   }
 );
 
-export const { addFavourites, removeFavourites, setPage, sortDataUsingDate } =
-  dataSlice.actions;
+export const {
+  addFavourites,
+  removeFavourites,
+  setPage,
+  sortDataUsingDate,
+  sortDataUsingRating,
+} = dataSlice.actions;
 
 export default dataSlice.reducer;
