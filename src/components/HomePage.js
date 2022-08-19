@@ -5,10 +5,9 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppBar, Button, Pagination, Stack } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
 import {
   getMovieData,
   getSearchResult,
@@ -16,9 +15,9 @@ import {
   setSearchValue,
   sortDataUsingDate,
   sortDataUsingRating,
-} from "../store/dataSlice";
-import DynTab from "./DynTab";
-import { Axios } from "axios";
+} from "../store/movie-slice";
+import DynamicTab from "./DynamicTab";
+
 const HomePage = () => {
   const movieData = useSelector((state) => state.movie);
   const dispatch = useDispatch();
@@ -26,16 +25,17 @@ const HomePage = () => {
   const [dateFilter, setDateFilter] = useState(false);
   const [ratingFilter, setRatingFilter] = useState(false);
   const [searchInput, setSearchInput] = useState(false);
+
   useEffect(() => {
     if (searchInput) dispatch(getSearchResult());
     else dispatch(getMovieData());
   }, [movieData.page]);
   useEffect(() => {
-    if (tab==='NewRelease') {
+    if (tab === "NewRelease") {
       setSearchInput(false);
-      dispatch(setSearchValue(''));
-      dispatch(setPage(1));
-      dispatch(getMovieData());
+      dispatch(setSearchValue(""));
+      if (movieData.page !== 1) dispatch(setPage(1));
+      else dispatch(getMovieData());
     }
   }, [tab]);
   useEffect(() => {
@@ -52,10 +52,11 @@ const HomePage = () => {
     dispatch(setPage(value));
   };
   const searchHandler = (e) => {
-    e.preventDefault()
-    if (searchInput) {
-      setTab('Search')
-      dispatch(getSearchResult());
+    e.preventDefault();
+    if (movieData.searchValue) {
+      setTab("Search");
+      if (movieData.page !== 1) dispatch(setPage(1));
+      else dispatch(getSearchResult());
     }
   };
 
@@ -64,11 +65,12 @@ const HomePage = () => {
       setSearchInput(true);
       dispatch(setSearchValue(e.target.value));
     } else {
-      dispatch(setSearchValue(''));
+      setSearchInput(false);
+      dispatch(setSearchValue(""));
       dispatch(getMovieData());
+      setTab("NewRelease");
     }
   };
-  console.log(movieData);
   return (
     <>
       <AppBar style={{ background: "#2E3B55" }}>
@@ -92,19 +94,19 @@ const HomePage = () => {
             label="Favourites"
           />
           <div className="nav_options">
-          <h2 className="pageTitle">Movie App</h2>
+            <h2 className="pageTitle">Movie App</h2>
             <div className="search_bar">
               <form onSubmit={searchHandler}>
-              <input
-              value={movieData.searchValue}
-                onChange={inputChangeHandler}
-                type="text"
-                placeholder="Search.."
-                className="search_input"
-              />
-              <button type="submit" className="search_icon" >
-                <SearchIcon />
-              </button>
+                <input
+                  value={movieData.searchValue}
+                  onChange={inputChangeHandler}
+                  type="text"
+                  placeholder="Search.."
+                  className="search_input"
+                />
+                <button type="submit" className="search_icon">
+                  <SearchIcon />
+                </button>
               </form>
             </div>
             <div className="releaseDate">
@@ -135,17 +137,25 @@ const HomePage = () => {
         </Tabs>
       </AppBar>
       <main className="content">
-        {tab === "NewRelease" && <DynTab data={movieData.data?.results} />}
-        {tab === "Favourites" && <DynTab data={movieData.favourites} />}
-        {(searchInput&&tab!== ("Favourites"||"NewRelease")) && <DynTab data={movieData.data?.results} />}
-        {(movieData.data?.total_pages &&tab!=="Favourites") && (
+        {tab === "NewRelease" && <DynamicTab data={movieData.data?.results} />}
+        {tab === "Favourites" && <DynamicTab data={movieData.favourites} />}
+        {tab !== "Favourites" && tab !== "NewRelease" && (
+          <DynamicTab data={movieData.data?.results} />
+        )}
+        {movieData.data?.total_pages && tab !== "Favourites" && (
           <div className="pagination">
             <Stack spacing={2}>
               <Pagination
-              page={movieData.page}
+                page={movieData.page}
                 size="large"
                 color="secondary"
-                count={searchInput ? movieData.data?.total_pages : 500}
+                count={
+                  searchInput
+                    ? movieData.data?.total_pages > 500
+                      ? 500
+                      : movieData.data?.total_pages
+                    : 500
+                }
                 onChange={handleChangePage}
               />
             </Stack>

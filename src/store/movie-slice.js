@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { Urls } from "../config/config";
+import { api } from "../config/config";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -9,10 +9,10 @@ const initialState = {
   page: 1,
   favouritesPage: 1,
   error: null,
-  searchValue:''
+  searchValue: "",
 };
 
-export const dataSlice = createSlice({
+export const movieSlice = createSlice({
   name: "movieData",
   initialState,
   reducers: {
@@ -44,22 +44,21 @@ export const dataSlice = createSlice({
       state.searchValue = action.payload;
     },
     sortDataUsingDate(state, action) {
-      console.log(action)
-      // eslint-disable-next-line default-case
       switch (action.payload.tab) {
+        default:
         case "NewRelease":
         case "Search":
           if (action.payload.dateFilter) {
             state.data?.results.sort(
               (firstMovie, secondMovie) =>
-                parseInt(firstMovie.release_date.replace("-", "")) -
-                parseInt(secondMovie.release_date.replace("-", ""))
+                parseInt(firstMovie?.release_date?.replace("-", "")) -
+                parseInt(secondMovie?.release_date?.replace("-", ""))
             );
           } else {
             state.data?.results.sort(
               (firstMovie, secondMovie) =>
-                parseInt(secondMovie.release_date.replace("-", "")) -
-                parseInt(firstMovie.release_date.replace("-", ""))
+                parseInt(secondMovie?.release_date?.replace("-", "")) -
+                parseInt(firstMovie?.release_date?.replace("-", ""))
             );
           }
           console.log(state.data?.results.sort);
@@ -69,35 +68,33 @@ export const dataSlice = createSlice({
           if (action.payload.dateFilter) {
             state.favourites.sort(
               (firstMovie, secondMovie) =>
-                parseInt(firstMovie.release_date.replace("-", "")) -
-                parseInt(secondMovie.release_date.replace("-", ""))
+                parseInt(firstMovie?.release_date?.replace("-", "")) -
+                parseInt(secondMovie?.release_date?.replace("-", ""))
             );
           } else {
             state.favourites.sort(
               (firstMovie, secondMovie) =>
-                parseInt(secondMovie.release_date.replace("-", "")) -
-                parseInt(firstMovie.release_date.replace("-", ""))
+                parseInt(secondMovie?.release_date?.replace("-", "")) -
+                parseInt(firstMovie?.release_date?.replace("-", ""))
             );
           }
           break;
-
       }
     },
     sortDataUsingRating(state, action) {
-      console.log("from slice", action);
-      // eslint-disable-next-line default-case
       switch (action.payload.tab) {
+        default:
         case "NewRelease":
-          case "Search":
+        case "Search":
           if (action.payload.ratingFilter) {
             state.data?.results.sort(
               (firstMovie, secondMovie) =>
-                secondMovie.vote_average - firstMovie.vote_average
+                secondMovie?.vote_average - firstMovie?.vote_average
             );
           } else {
             state.data?.results.sort(
               (firstMovie, secondMovie) =>
-                firstMovie.vote_average - secondMovie.vote_average
+                firstMovie?.vote_average - secondMovie?.vote_average
             );
           }
           break;
@@ -105,12 +102,12 @@ export const dataSlice = createSlice({
           if (action.payload.ratingFilter) {
             state.favourites.sort(
               (firstMovie, secondMovie) =>
-                secondMovie.vote_average - firstMovie.vote_average
+                secondMovie?.vote_average - firstMovie?.vote_average
             );
           } else {
             state.favourites.sort(
               (firstMovie, secondMovie) =>
-                firstMovie.vote_average - secondMovie.vote_average
+                firstMovie?.vote_average - secondMovie?.vote_average
             );
           }
           break;
@@ -127,7 +124,11 @@ export const dataSlice = createSlice({
         action.payload.results = action.payload.results.map((item) => {
           return {
             ...item,
-            isFavourite: state.favourites.find((favItem)=>favItem.id===item.id)?true:false,
+            isFavourite: state.favourites.find(
+              (favItem) => favItem.id === item.id
+            )
+              ? true
+              : false,
           };
         });
         state.data = action.payload;
@@ -142,25 +143,21 @@ export const getMovieData = createAsyncThunk(
   "/api/movie",
   async (params, thunkAPI) => {
     const state = thunkAPI.getState();
-    const { data } = await Axios.get(
-      `${Urls.API_URL}&page=${state.movie.page}`
-    );
+    const { data } = await Axios.get(`${api.movies}&page=${state.movie.page}`);
     return data;
   }
 );
 
-export const getSearchResult=createAsyncThunk(
+export const getSearchResult = createAsyncThunk(
   "/api/movie",
   async (params, thunkAPI) => {
     const state = thunkAPI.getState();
-    const {data}=await Axios.get(
-      `${Urls.API_SEARCH}&page=${state.movie.page}&query=${state.movie.searchValue}`
+    const { data } = await Axios.get(
+      `${api.search}&page=${state.movie.page}&query=${state.movie.searchValue}`
     );
     return data;
   }
-
-)
-
+);
 
 export const {
   addFavourites,
@@ -168,7 +165,7 @@ export const {
   setPage,
   sortDataUsingDate,
   sortDataUsingRating,
-  setSearchValue
-} = dataSlice.actions;
+  setSearchValue,
+} = movieSlice.actions;
 
-export default dataSlice.reducer;
+export default movieSlice.reducer;

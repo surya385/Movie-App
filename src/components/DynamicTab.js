@@ -2,7 +2,8 @@ import { Grid } from "@mui/material";
 import { useState } from "react";
 import MovieCard from "./MovieCard";
 import MovieModal from "./MovieModal";
-const DynTab = ({ data}) => {
+
+const DynamicTab = ({ data }) => {
   const [open, setOpen] = useState(false);
   const [movieModalData, setMovieModalData] = useState({});
   const handleOpen = (data) => {
@@ -16,7 +17,7 @@ const DynTab = ({ data}) => {
     <div>
       <Grid container rowSpacing={3} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
         {data.map((movie) => (
-          <Grid item >
+          <Grid item key={movie.id}>
             <MovieCard movieData={movie} movieModelOpen={handleOpen} />
           </Grid>
         ))}
@@ -31,4 +32,4 @@ const DynTab = ({ data}) => {
     </div>
   );
 };
-export default DynTab;
+export default DynamicTab;
