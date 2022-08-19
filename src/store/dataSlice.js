@@ -38,7 +38,43 @@ export const dataSlice = createSlice({
       );
     },
     setPage: (state, action) => {
-        state.page = action.payload;
+      state.page = action.payload;
+    },
+    sortDataUsingDate(state, action) {
+      // eslint-disable-next-line default-case
+      switch (action.payload.tab) {
+        case "NewRelease":
+          if (action.payload.dateFilter) {
+            state.data?.results.sort(
+              (firstMovie, secondMovie) =>
+                parseInt(firstMovie.release_date.replace("-", "")) -
+                parseInt(secondMovie.release_date.replace("-", ""))
+            );
+          } else {
+            state.data?.results.sort(
+              (firstMovie, secondMovie) =>
+                parseInt(secondMovie.release_date.replace("-", "")) -
+                parseInt(firstMovie.release_date.replace("-", ""))
+            );
+          }
+          break;
+        // eslint-disable-next-line no-duplicate-case
+        case "Favourites":
+          if (action.payload.dateFilter) {
+            state.favourites.sort(
+              (firstMovie, secondMovie) =>
+                parseInt(firstMovie.release_date.replace("-", "")) -
+                parseInt(secondMovie.release_date.replace("-", ""))
+            );
+          } else {
+            state.favourites.sort(
+              (firstMovie, secondMovie) =>
+                parseInt(secondMovie.release_date.replace("-", "")) -
+                parseInt(firstMovie.release_date.replace("-", ""))
+            );
+          }
+          break;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -73,7 +109,7 @@ export const getMovieData = createAsyncThunk(
   }
 );
 
-export const { addFavourites, removeFavourites, setPage, sort } =
+export const { addFavourites, removeFavourites, setPage, sortDataUsingDate } =
   dataSlice.actions;
 
 export default dataSlice.reducer;

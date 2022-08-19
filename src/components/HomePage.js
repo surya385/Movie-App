@@ -4,38 +4,35 @@ import MovieFilterIcon from "@mui/icons-material/MovieFilter";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { useState } from "react";
-import { AppBar, Button, Pagination, Stack, TabScrollButton } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { AppBar, Button, Pagination, Stack } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import store from "../store/store";
-import { getMovieData, setPage } from "../store/dataSlice";
+import { getMovieData, setPage, sortDataUsingDate } from "../store/dataSlice";
 import DynTab from "./DynTab";
 import AddFavourite from "./AddFavourites";
 import RemoveFavourites from "./RemoveFavourites";
-const useStyles = makeStyles({
-
-});
 const HomePage = () => {
-  const classes = useStyles();
-  const [tab, setTab] = useState("NewRelease");
-  // const [page, setPage] = useState(1);
-  const dispatch = useDispatch();
   const movieData = useSelector((state) => state.movie);
+  const dispatch = useDispatch();
+  const [tab, setTab] = useState("NewRelease");
+  const [dateFilter, setDateFilter] = useState(false);
+
   useEffect(() => {
     dispatch(getMovieData());
   }, [movieData.page]);
+  useEffect(() => {
+    dispatch(sortDataUsingDate({dateFilter,tab}));
+  }, [dateFilter]);
+
   const handleChange = (event, newValue) => {
     setTab(newValue);
   };
   const handleChangePage = (event, value) => {
-    // setPage(value);
     dispatch(setPage(value));
   };
-  const favouritesData=movieData.favourites;
-  const newReleasesData= movieData.data?.results;
-  console.log(movieData);
   return (
     <>
       <AppBar style={{ background: "#2E3B55" }}>
@@ -59,7 +56,7 @@ const HomePage = () => {
             label="Favourites"
           />
           <div className="nav_options">
-          <h2 className="pageTitle">Pelina Beer</h2>
+          <h2 className="pageTitle">Movie App</h2>
             <div className="search_bar">
               <input
                 type="text"
@@ -67,17 +64,17 @@ const HomePage = () => {
                 name="search"
                 className="search_input"
               />
-              <button  className="search_icon" >
+              <button className="search_icon">
                 <SearchIcon />
               </button>
             </div>
             <div className="releaseDate">
               <Button
+                onClick={() => setDateFilter((prev) => !prev)}
                 variant="contained"
                 color="secondary"
                 endIcon={
-                  <ArrowUpwardIcon />
-                  //   <ArrowDropDownIcon />
+                  dateFilter ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />
                 }
               >
                 Release Date
@@ -89,7 +86,7 @@ const HomePage = () => {
                 color="secondary"
                 endIcon={
                   <ArrowUpwardIcon />
-                  //   <ArrowDropDownIcon />
+                  //   <ArrowDownwardIcon />
                 }
               >
                 Rating
@@ -100,14 +97,23 @@ const HomePage = () => {
       </AppBar>
       <main className="content">
         {tab === "NewRelease" && (
-          <DynTab data={newReleasesData} FavComponent={AddFavourite} />
+          <DynTab data={movieData.data?.results} FavComponent={AddFavourite} />
         )}
         {tab === "Favourites" && (
-          <DynTab data={favouritesData} FavComponent={RemoveFavourites} />
+          <DynTab data={movieData.favourites} FavComponent={RemoveFavourites} />
         )}
-        {(movieData.data?.total_pages&&tab!=='Favourites')&& <div className="pagination"><Stack spacing={2}>
-         <Pagination size="large" color='secondary' count={500}  onChange={handleChangePage} />
-         </Stack></div>}
+        {movieData.data?.total_pages && tab !== "Favourites" && (
+          <div className="pagination">
+            <Stack spacing={2}>
+              <Pagination
+                size="large"
+                color="secondary"
+                count={500}
+                onChange={handleChangePage}
+              />
+            </Stack>
+          </div>
+        )}
       </main>
     </>
   );
