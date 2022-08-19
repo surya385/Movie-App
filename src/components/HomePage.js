@@ -10,41 +10,17 @@ import { makeStyles } from "@mui/styles";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import store from "../store/store";
-import { getMovieData } from "../store/dataSlice";
+import { getMovieData, setPage } from "../store/dataSlice";
 import DynTab from "./DynTab";
 import AddFavourite from "./AddFavourites";
 import RemoveFavourites from "./RemoveFavourites";
 const useStyles = makeStyles({
-  search_bar: {
-    marginLeft: "17%",
-    display: "flex",
-    alignItems: "center",
-  },
-  filters: {
-    marginLeft: "3%",
-    display: "flex",
-    alignItems: "center",
-  },
-  search_input: {
-    padding: "3.2%",
-  },
-  releaseDate: {
-    marginLeft: "10%",
-  },
-  rating: {
-    marginLeft: "2%",
-  },
-  title: {
-    marginLeft: "16%",
-  },
-  content: {
-    position: "absolute",
-    top: "73px",
-  },
+
 });
 const HomePage = () => {
   const classes = useStyles();
   const [tab, setTab] = useState("NewRelease");
+  // const [page, setPage] = useState(1);
   const dispatch = useDispatch();
   const movieData = useSelector((state) => state.movie);
   useEffect(() => {
@@ -52,6 +28,10 @@ const HomePage = () => {
   }, [movieData.page]);
   const handleChange = (event, newValue) => {
     setTab(newValue);
+  };
+  const handleChangePage = (event, value) => {
+    // setPage(value);
+    dispatch(setPage(value));
   };
   const favouritesData=movieData.favourites;
   const newReleasesData= movieData.data?.results;
@@ -78,20 +58,20 @@ const HomePage = () => {
             value="Favourites"
             label="Favourites"
           />
-          <h2 className={classes.title}>Pelina Beer</h2>
-          <div className={classes.filters}>
-            <div className={classes.search_bar}>
+          <div className="nav_options">
+          <h2 className="pageTitle">Pelina Beer</h2>
+            <div className="search_bar">
               <input
                 type="text"
                 placeholder="Search.."
                 name="search"
-                className={classes.search_input}
+                className="search_input"
               />
-              <button type="submit">
+              <button  className="search_icon" >
                 <SearchIcon />
-              </button>{" "}
+              </button>
             </div>
-            <div className={classes.releaseDate}>
+            <div className="releaseDate">
               <Button
                 variant="contained"
                 color="secondary"
@@ -103,7 +83,7 @@ const HomePage = () => {
                 Release Date
               </Button>
             </div>
-            <div className={classes.rating}>
+            <div className="rating">
               <Button
                 variant="contained"
                 color="secondary"
@@ -118,14 +98,16 @@ const HomePage = () => {
           </div>
         </Tabs>
       </AppBar>
-      <main className={classes.content}>
+      <main className="content">
         {tab === "NewRelease" && (
           <DynTab data={newReleasesData} FavComponent={AddFavourite} />
         )}
         {tab === "Favourites" && (
           <DynTab data={favouritesData} FavComponent={RemoveFavourites} />
         )}
-
+        {(movieData.data?.total_pages&&tab!=='Favourites')&& <div className="pagination"><Stack spacing={2}>
+         <Pagination size="large" color='secondary' count={500}  onChange={handleChangePage} />
+         </Stack></div>}
       </main>
     </>
   );

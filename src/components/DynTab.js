@@ -9,7 +9,7 @@ const DynTab = ({ data, FavComponent }) => {
     setMovieModalData(data)
     setOpen(true)};
   const handleClose = () => setOpen(false);
-  if (!data || data.length === 0) return <h1>No Movies Found</h1>;
+  if (!data || data.length === 0) return <h2 className="noMoviesFound">No Movies Found</h2>;
   return (
     <div>
       <Grid container rowSpacing={3} columnSpacing={{ xs: 1, sm: 2, md: 3}}>

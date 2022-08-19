@@ -38,11 +38,7 @@ export const dataSlice = createSlice({
       );
     },
     setPage: (state, action) => {
-      if (action.payload.tab === "Favourites") {
-        state.favouritesPage = action.payload.page;
-      } else {
-        state.page = action.payload.page;
-      }
+        state.page = action.payload;
     },
   },
   extraReducers: (builder) => {

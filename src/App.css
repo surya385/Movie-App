@@ -35,3 +35,37 @@
     border: 0;
     border-radius: 8;
 }
+.pagination{
+    margin-top: 1%;
+    padding: 0.5%;
+    display:flex;
+    justify-content: center;
+}
+.search_bar{
+    margin-left: 12%;
+    display: flex;
+    align-items: center;
+  }
+  .nav_options{
+    display: flex;
+    align-items: center;
+  }
+  .search_input{
+    padding: 0.6%;
+  }
+  .releaseDate{
+    margin-left: 6%;
+  }
+.rating{
+    margin-left: 2%;
+  }
+  .pageTitle {
+    margin-left: 32%;
+  }
+  .content{
+    position: absolute;
+    top: 73px;
+  }
+  .search_icon{
+    border:0;
+  }
