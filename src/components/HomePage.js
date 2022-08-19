@@ -11,21 +11,33 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import {
   getMovieData,
+  getSearchResult,
   setPage,
+  setSearchValue,
   sortDataUsingDate,
   sortDataUsingRating,
 } from "../store/dataSlice";
 import DynTab from "./DynTab";
+import { Axios } from "axios";
 const HomePage = () => {
   const movieData = useSelector((state) => state.movie);
   const dispatch = useDispatch();
   const [tab, setTab] = useState("NewRelease");
   const [dateFilter, setDateFilter] = useState(false);
   const [ratingFilter, setRatingFilter] = useState(false);
-
+  const [searchInput, setSearchInput] = useState(false);
   useEffect(() => {
-    dispatch(getMovieData());
+    if (searchInput) dispatch(getSearchResult());
+    else dispatch(getMovieData());
   }, [movieData.page]);
+  useEffect(() => {
+    if (tab==='NewRelease') {
+      setSearchInput(false);
+      dispatch(setSearchValue(''));
+      dispatch(setPage(1));
+      dispatch(getMovieData());
+    }
+  }, [tab]);
   useEffect(() => {
     dispatch(sortDataUsingDate({ dateFilter, tab }));
   }, [dateFilter]);
@@ -39,6 +51,24 @@ const HomePage = () => {
   const handleChangePage = (event, value) => {
     dispatch(setPage(value));
   };
+  const searchHandler = (e) => {
+    e.preventDefault()
+    if (searchInput) {
+      setTab('Search')
+      dispatch(getSearchResult());
+    }
+  };
+
+  const inputChangeHandler = (e) => {
+    if (e.target.value) {
+      setSearchInput(true);
+      dispatch(setSearchValue(e.target.value));
+    } else {
+      dispatch(setSearchValue(''));
+      dispatch(getMovieData());
+    }
+  };
+  console.log(movieData);
   return (
     <>
       <AppBar style={{ background: "#2E3B55" }}>
@@ -64,15 +94,18 @@ const HomePage = () => {
           <div className="nav_options">
           <h2 className="pageTitle">Movie App</h2>
             <div className="search_bar">
+              <form onSubmit={searchHandler}>
               <input
+              value={movieData.searchValue}
+                onChange={inputChangeHandler}
                 type="text"
                 placeholder="Search.."
-                name="search"
                 className="search_input"
               />
-              <button className="search_icon">
+              <button type="submit" className="search_icon" >
                 <SearchIcon />
               </button>
+              </form>
             </div>
             <div className="releaseDate">
               <Button
@@ -102,19 +135,17 @@ const HomePage = () => {
         </Tabs>
       </AppBar>
       <main className="content">
-        {tab === "NewRelease" && (
-          <DynTab data={movieData.data?.results}/>
-        )}
-        {tab === "Favourites" && (
-          <DynTab data={movieData.favourites}/>
-        )}
-        {movieData.data?.total_pages && tab !== "Favourites" && (
+        {tab === "NewRelease" && <DynTab data={movieData.data?.results} />}
+        {tab === "Favourites" && <DynTab data={movieData.favourites} />}
+        {(searchInput&&tab!== ("Favourites"||"NewRelease")) && <DynTab data={movieData.data?.results} />}
+        {(movieData.data?.total_pages &&tab!=="Favourites") && (
           <div className="pagination">
             <Stack spacing={2}>
               <Pagination
+              page={movieData.page}
                 size="large"
                 color="secondary"
-                count={500}
+                count={searchInput ? movieData.data?.total_pages : 500}
                 onChange={handleChangePage}
               />
             </Stack>

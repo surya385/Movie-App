@@ -16,7 +16,7 @@ const DynTab = ({ data}) => {
     <div>
       <Grid container rowSpacing={3} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
         {data.map((movie) => (
-          <Grid item md={3}>
+          <Grid item >
             <MovieCard movieData={movie} movieModelOpen={handleOpen} />
           </Grid>
         ))}

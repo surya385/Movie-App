@@ -9,7 +9,7 @@ const initialState = {
   page: 1,
   favouritesPage: 1,
   error: null,
-  sortBy: "rating",
+  searchValue:''
 };
 
 export const dataSlice = createSlice({
@@ -40,10 +40,15 @@ export const dataSlice = createSlice({
     setPage: (state, action) => {
       state.page = action.payload;
     },
+    setSearchValue: (state, action) => {
+      state.searchValue = action.payload;
+    },
     sortDataUsingDate(state, action) {
+      console.log(action)
       // eslint-disable-next-line default-case
       switch (action.payload.tab) {
         case "NewRelease":
+        case "Search":
           if (action.payload.dateFilter) {
             state.data?.results.sort(
               (firstMovie, secondMovie) =>
@@ -57,6 +62,7 @@ export const dataSlice = createSlice({
                 parseInt(firstMovie.release_date.replace("-", ""))
             );
           }
+          console.log(state.data?.results.sort);
           break;
         // eslint-disable-next-line no-duplicate-case
         case "Favourites":
@@ -74,6 +80,7 @@ export const dataSlice = createSlice({
             );
           }
           break;
+
       }
     },
     sortDataUsingRating(state, action) {
@@ -81,6 +88,7 @@ export const dataSlice = createSlice({
       // eslint-disable-next-line default-case
       switch (action.payload.tab) {
         case "NewRelease":
+          case "Search":
           if (action.payload.ratingFilter) {
             state.data?.results.sort(
               (firstMovie, secondMovie) =>
@@ -119,7 +127,7 @@ export const dataSlice = createSlice({
         action.payload.results = action.payload.results.map((item) => {
           return {
             ...item,
-            isFavourite: false,
+            isFavourite: state.favourites.find((favItem)=>favItem.id===item.id)?true:false,
           };
         });
         state.data = action.payload;
@@ -141,12 +149,26 @@ export const getMovieData = createAsyncThunk(
   }
 );
 
+export const getSearchResult=createAsyncThunk(
+  "/api/movie",
+  async (params, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const {data}=await Axios.get(
+      `${Urls.API_SEARCH}&page=${state.movie.page}&query=${state.movie.searchValue}`
+    );
+    return data;
+  }
+
+)
+
+
 export const {
   addFavourites,
   removeFavourites,
   setPage,
   sortDataUsingDate,
   sortDataUsingRating,
+  setSearchValue
 } = dataSlice.actions;
 
 export default dataSlice.reducer;

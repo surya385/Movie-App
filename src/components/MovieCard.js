@@ -18,12 +18,15 @@ export default function MovieCard({ movieData,movieModelOpen }) {
     }
   };
   return (
-    <Card md={{ width: 319, height: 416 }}>
+    <Card sx={{ maxWidth: 319 }}>
       <div className="image-container d-flex justify-content-start m-3">
         <CardActionArea onClick={() => movieModelOpen(movieData)}>
           <CardMedia
+          height='430.88px'
+          width='287.25px'
             component="img"
             image={`${Urls.API_IMG}${movieData.poster_path}`}
+            alt={`${movieData.title} - Image Not Found`}
           />
         </CardActionArea>
         <div
