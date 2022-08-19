@@ -7,6 +7,10 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { useState } from "react";
 import { AppBar, Button } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import { useSelector,useDispatch } from "react-redux";
+import { useEffect } from "react";
+import store from "../store/store";
+import { getMovieData } from "../store/dataSlice";
 const useStyles = makeStyles({
   textCentered: {
     textAlign: "center",
@@ -36,18 +40,22 @@ const useStyles = makeStyles({
 });
 const HomePage = () => {
   const classes = useStyles();
-  const [value, setValue] = useState("one");
-
+  const [Tab, setTab] = useState("one");
+  const movieData = useSelector((state) => state.movie);
+  const dispatch=useDispatch(store)
+  useEffect(() => {
+    dispatch(getMovieData());
+  }, [movieData.page]);
   const handleChange = (event, newValue) => {
-    setValue(newValue);
-    console.log(newValue);
+    setTab(newValue);
   };
+  console.log(movieData)
   return (
     <AppBar
       style={{ background: "#2E3B55" }}
     >
       <Tabs
-        value={value}
+        value={Tab}
         onChange={handleChange}
         textColor="white"
         indicatorColor="secondary"
